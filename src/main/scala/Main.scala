@@ -2,7 +2,7 @@ import java.io.File
 
 object Main {
   def main(args: Array[String]) {
-    val path = "C:\\Users\\DomHellsing\\IdeaProjects\\game-theory-master\\src\\main\\resources"
+    val path = args(0)
     val dir = new File(path)
     val fileStream = dir.listFiles.toStream
 

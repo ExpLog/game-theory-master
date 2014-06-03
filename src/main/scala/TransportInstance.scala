@@ -1,9 +1,3 @@
-/**
- * Created by Guest on 02/06/14.
- */
-
-
-
 class TransportInstance(src: List[Node], snk: List[Node],
                 val edges: List[Edge], val name: String) {
   val sources: Map[Int,Node] = (for(s <- src) yield (s.idx, s)).toMap

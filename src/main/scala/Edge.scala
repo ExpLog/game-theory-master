@@ -1,6 +1,3 @@
-/**
- * Created by Guest on 02/06/14.
- */
 class Edge(val source: Int, val sink: Int,
            val varCost: Double, val fixedCost: Double) {
   override def toString: String =
