@@ -11,6 +11,7 @@ object Main {
 
     for(i <- instances) {
       val lp = new LPSolver(i)
+      lp.dispose()
     }
   }
 }

@@ -3,18 +3,10 @@ class TransportInstance(src: List[Node], snk: List[Node],
   val sources: Map[Int,Node] = (for(s <- src) yield (s.idx, s)).toMap
   val sinks: Map[Int,Node] = (for(s <- snk) yield (s.idx, s)).toMap
 
-  println(name)
-
   override def toString = {
-    val strSources = sources.foldLeft(""){
-      case (r, (idx, node)) => r + node.idx + ", " + node.amount + "\n"
-    }
-
-    val strSinks = sinks.foldLeft(""){
-      case (r, (idx, node)) => r + node.idx + ", " + node.amount + "\n"
-    }
-
-    val strEdges = edges.map(e => e.toString + "\n").foldLeft("")(_+_)
+    val strSources = sources.map{case (idx, node) => node + "\n"}.foldLeft("")(_+_)
+    val strSinks = sinks.map{case (idx, node) => node + "\n"}.foldLeft("")(_+_)
+    val strEdges = edges.map(e => e + "\n").foldLeft("")(_+_)
 
     val nSource = sources.size
     val nSink = sinks.size
