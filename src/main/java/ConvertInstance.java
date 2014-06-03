@@ -1,4 +1,6 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -18,11 +20,10 @@ public class ConvertInstance {
 
     public String getName() { return name; }
 
-    public void convert(String srcPath, String dstPath) throws Exception {
+    public void convert(String srcPath) throws Exception {
 		BufferedReader reader = new BufferedReader(new FileReader(new File(
 				srcPath)));
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				dstPath)));
+
 		String nl = System.getProperty("line.separator");
 
 
@@ -33,8 +34,8 @@ public class ConvertInstance {
 		// HEADER
 		reader.readLine();//instance
 		// INSTANCE INFO (name, sources, sinks)
-		String info = reader.readLine();
-		Scanner sc = new Scanner(info);
+        String info = reader.readLine();
+        Scanner sc = new Scanner(info);
 		name = sc.next();
 		sc.close();
 		// ARCS
@@ -73,19 +74,5 @@ public class ConvertInstance {
 			line = reader.readLine();
 		}
 		reader.close();
-
-		writer.write(name + nl);
-		writer.write(sources.size() + "," + sinks.size() + "," + edges.size()
-				+ nl);
-		for (Node n : sources) {
-			writer.write(n + nl);
-		}
-		for (Node n : sinks) {
-			writer.write(n + nl);
-		}
-		for (Edge e : edges) {
-			writer.write(e + nl);
-		}
-		writer.close();
 	}
 }
