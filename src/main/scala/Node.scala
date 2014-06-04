@@ -1,5 +1,5 @@
 class Node(val idx: Int, val amount: Double) {
-  override def toString: String = idx + ", " + amount
+  override def toString = s"$idx, $amount"
 
   /**
    * Creates a name for the node.

@@ -35,10 +35,10 @@ class LPSolver(transport: TransportInstance) {
       }
 
       val expr = new GRBLinExpr()
-      for (e <- edgeSet) {
+      edgeSet foreach {
         case (edgePair, v) => expr.addTerm(1.0, v)
       }
-      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("source"))
+      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("source-"))
   }
 
   /**
@@ -51,12 +51,11 @@ class LPSolver(transport: TransportInstance) {
       }
 
       val expr = new GRBLinExpr()
-      edgeSet.foreach {
-        case (edgePair, v) =>
-          expr.addTerm(1.0, v)
+      edgeSet foreach {
+        case (edgePair, v) => expr.addTerm(1.0, v)
       }
 
-      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("sink"))
+      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("sink-"))
   }
 
   model.optimize()
@@ -64,8 +63,7 @@ class LPSolver(transport: TransportInstance) {
   override def toString = {
     edges.foldLeft("") {
       case (r, ((source, sink), v)) =>
-        val value = v.get(GRB.DoubleAttr.X)
-        val str = s"$source, $sink, $value\n"
+        val str = s"$source, $sink, ${v.get(GRB.DoubleAttr.X)}\n"
         r + str
     }
   }
@@ -75,4 +73,6 @@ class LPSolver(transport: TransportInstance) {
 
 object LPSolver {
   val env = new GRBEnv("game.log")
+
+  def endGame() = env.dispose()
 }

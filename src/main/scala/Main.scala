@@ -1,3 +1,4 @@
+import MyS.MySContext
 import java.io.File
 
 object Main {
@@ -13,5 +14,10 @@ object Main {
       val lp = new LPSolver(i)
       lp.dispose()
     }
+
+    LPSolver.endGame()
+
+    val r = new Reader(fileStream(0).getAbsolutePath)
+    println(r.name)
   }
 }
