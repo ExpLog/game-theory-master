@@ -1,3 +1,8 @@
+package lp
+
+import graph._
+import converter.ConvertInstance
+
 class TransportInstance(src: List[Node], snk: List[Node],
                 val edges: List[Edge], val name: String) {
   val sources: Map[Int,Node] = (for(s <- src) yield (s.idx, s)).toMap
@@ -24,4 +29,6 @@ object TransportInstance {
     new TransportInstance(convert.getSources.toList, convert.getSinks.toList,
       convert.getEdges.toList, convert.getName)
   }
+
+
 }

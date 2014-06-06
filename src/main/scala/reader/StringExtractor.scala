@@ -1,8 +1,10 @@
-object MyS {
+package reader
 
-  implicit class MySContext (val sc : StringContext) {
+object StringExtractor {
 
-    object mys {
+  implicit class StringExtractorContext (val sc : StringContext) {
+
+    object ext {
 
       def apply (args : Any*) : String =
         sc.s (args : _*)

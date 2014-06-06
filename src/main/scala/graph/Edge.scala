@@ -1,3 +1,5 @@
+package graph
+
 import scala.language.implicitConversions
 
 class Edge(val source: Int, val sink: Int,
@@ -9,5 +11,5 @@ class Edge(val source: Int, val sink: Int,
 }
 
 object Edge {
-  //implicit def edgeToPair(e: Edge) = (e.source, e.sink)
+  //implicit def edgeToPair(e: graph.Edge) = (e.source, e.sink)
 }

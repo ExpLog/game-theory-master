@@ -1,3 +1,5 @@
+package graph
+
 class Node(val idx: Int, val amount: Double) {
   override def toString = s"$idx, $amount"
 
