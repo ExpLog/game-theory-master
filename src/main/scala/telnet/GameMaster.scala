@@ -19,5 +19,5 @@ object GameMaster {
       Bid(name, source.toInt, sink.toInt, cost.toDouble)
   }
 
-  def bidFile
+  def bidFile() = ???
 }

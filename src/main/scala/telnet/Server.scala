@@ -51,7 +51,7 @@ object TelnetServer {
             name = myName
             log.info(s"Name $name received")
           case m if m.startsWith("bid") =>
-            gameMaster ! Bid(name, m)
+          //gameMaster ! Bid(name, m)
           case m =>
             socket.write(ByteString("Unknown message receied."))
             log.warning(s"Received unknown message from $name")

@@ -2,17 +2,29 @@ package lp
 
 import gurobi._
 import LPSolver._
-import math.min
+import math.max
+import data._
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
-class LPSolver(transport: TransportInstance) {
+class LPSolver(transport: TransportationInstance) {
   val model = new GRBModel(env)
+
+  val maxSource = transport.getSources.asScala.toList.foldLeft(0.0){
+    case (r,n) => max(r, n.getAmount)
+  }
+
+  val maxSink = transport.getSources.asScala.toList.foldLeft(0.0){
+    case (r,n) => max(r, n.getAmount)
+  }
+
+  val maxAmount = max(maxSource, maxSink)
 
   val edges: Map[(Int, Int), GRBVar] = {
     for {
-      e <- transport.edges
+      e: Edge <- transport.getEdges
     } yield {
-      val m = min(transport.sources(e.source).amount, transport.sinks(e.sink).amount)
-      ((e.source, e.sink), model.addVar(0.0, m, e.varCost, GRB.CONTINUOUS, e.name))
+      ((e.getSourceId, e.getSinkId), model.addVar(0.0, maxAmount, e.getVarCost, GRB.CONTINUOUS, e.getName))
     }
   }.toMap
 
@@ -20,34 +32,36 @@ class LPSolver(transport: TransportInstance) {
 
   model.setObjective(model.getObjective, GRB.MINIMIZE)
 
-  transport.sources.foreach {
-    case (idx, node) =>
-      val edgeSet = edges.filterKeys {
-        case edgePair => edgePair._1 == idx
-      }
+  transport.getSources.foreach {
+    case node =>
+      val edgeSet: List[Edge] = transport.getEdgesFrom(node.getID).asScala.toList
 
       val expr = new GRBLinExpr()
       edgeSet.foreach {
-        case (edgePair, v) =>
-          expr.addTerm(1.0, v)
+        case e =>
+          val src = e.getSourceId
+          val snk = e.getSinkId
+          val variable = edges(src,snk)
+          expr.addTerm(1.0, variable)
       }
 
-      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("source"))
+      model.addConstr(expr, GRB.EQUAL, node.getAmount, node.getLabel("source"))
   }
 
-  transport.sinks.foreach {
-    case (idx, node) =>
-      val edgeSet = edges.filterKeys {
-        case edgePair => edgePair._2 == idx
-      }
+  transport.getSinks.foreach {
+    case node =>
+      val edgeSet: List[Edge] = transport.getEdgesTo(node.getID).asScala.toList
 
       val expr = new GRBLinExpr()
       edgeSet.foreach {
-        case (edgePair, v) =>
-          expr.addTerm(1.0, v)
+        case e =>
+          val src = e.getSourceId
+          val snk = e.getSinkId
+          val variable = edges(src,snk)
+          expr.addTerm(1.0, variable)
       }
 
-      model.addConstr(expr, GRB.EQUAL, node.amount, node.name("sink"))
+      model.addConstr(expr, GRB.EQUAL, node.getAmount, node.getLabel("sink"))
   }
 
   model.optimize()
@@ -60,6 +74,13 @@ class LPSolver(transport: TransportInstance) {
         r+str
     }
   }
+
+  def flows: List[EdgeFlow] = {
+    for( e <- edges ) yield {
+      val flow = e._2.get(GRB.DoubleAttr.X)
+      new EdgeFlow(e._1._1, e._1._2, flow)
+    }
+  }.toList
 
   def dispose() = model.dispose()
 }
