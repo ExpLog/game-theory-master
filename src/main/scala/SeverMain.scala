@@ -9,6 +9,7 @@ object SeverMain {
     args.toList match{
       case nPlayers::nRounds::dir::_ =>
         startServer(nPlayers.toInt, nRounds.toInt, dir)
+      case _ => "Usage is <number of players> <number of rounds> <absolute path to directory>"
     }
   }
 

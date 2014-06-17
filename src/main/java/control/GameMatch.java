@@ -33,12 +33,15 @@ public abstract class GameMatch {
 	protected TransportationInstance getInstance() {
 		return instance;
 	}
+
 	protected int getEdgesPerRound() {
 		return edgesPerRound;
 	}
+
 	protected InstanceHandler getHandler() {
 		return handler;
 	}
+
 	protected List<String> getPlayers() {
 		return players;
 	}
@@ -47,6 +50,7 @@ public abstract class GameMatch {
 		firstRound(nrounds);
 		return handler.getPayoffMap();
 	}
+
 	private void firstRound(int nrounds) {
 		edgesPerRound = edgesPerRound(instance, players.size(),nrounds);
 		send(players, makeStartMessage(instance, edgesPerRound));
@@ -54,6 +58,7 @@ public abstract class GameMatch {
 		Map<Edge,EdgeInfo> results = handler.solve(bids);
 		nextRound(results,nrounds-1);
 	}
+
 	private void nextRound(Map<Edge,EdgeInfo> results, int nrounds) {
 		if(nrounds == 0) {
 			end();
@@ -64,9 +69,11 @@ public abstract class GameMatch {
 		results = handler.solve(bids);
 		nextRound(results,nrounds-1);
 	}
+
 	private void end() {
 		send(players, makeEndMessage(handler.getPayoffMap()));
 	}
+
 	private List<Bid> filter(List<Bid> bids) {
 		Map<String, Integer> bidCounter = new HashMap<String, Integer>();
 		for(String s : players) {

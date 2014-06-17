@@ -1,13 +1,9 @@
 package telnet
 
-import akka.actor.{Actor, ActorRef, IO, IOManager, ActorLogging, Props}
+import akka.actor._
 import scala.collection.mutable.Map
 import akka.util._
-import scala.concurrent.duration._
-import reader.StringExtractor._
-
-import reader.BidReader._
-import telnet.GameMaster.{Broadcast, StartGame}
+import telnet.GameMaster.StartGame
 
 class TelnetServer(nPlayers: Int,
                    gameMaster: ActorRef,
@@ -23,24 +19,21 @@ class TelnetServer(nPlayers: Int,
   def receive = {
     case PlayerName(name) =>
       players = name::players
-      if(players.size == nPlayers)
+      if(players.size == nPlayers){
         gameMaster ! StartGame(players, serverName)
-
-    case Broadcast(msg) =>
-      subServers.foreach{
-        case (s, a) => a ! Broadcast(msg)
+        log.info("All players accounted for. Starting game.")
       }
 
     case IO.Listening(server, address) =>
-      log.info("Telnet Server listeninig on port {}.", address)
+      log.info("Hello, world!")
+      log.info("Telnet Server listening on port {}.", address)
 
     case IO.NewClient(server) =>
-      log.info("New incoming client connection on server.")
       val socket = server.accept()
-
       socket.write(ByteString("name\n")) //asks for a name
       subServers += (socket ->
         context.actorOf(Props(new SubServer(socket, gameMaster))))
+      log.info("New incoming client connection on server.")
 
     case IO.Read(socket, bytes) =>
       val cmd = ascii(bytes)
@@ -49,11 +42,21 @@ class TelnetServer(nPlayers: Int,
     case IO.Closed(socket, cause) =>
       context.stop(subServers(socket))
       subServers -= socket
+      log.info("A connection was closed.")
+
+    case "terminate" =>
+      subServers.foreach{
+        case (socket, actor) =>
+          socket.close()
+      }
+      log.info("Terminating all connections.")
+      log.info("Goodbye.")
+      context.system.shutdown()
   }
 }
 
 object TelnetServer {
-  implicit val askTimeout = Timeout(5 seconds)
+//  implicit val askTimeout = Timeout(5 seconds)
 
   def ascii(bytes: ByteString): String = {
     bytes.decodeString("UTF-8").trim
@@ -61,30 +64,4 @@ object TelnetServer {
 
   case class NewMessage(msg: String)
   case class PlayerName(name: String)
-  
-  class SubServer(socket: IO.SocketHandle,
-                  gameMaster: ActorRef) extends Actor with ActorLogging {
-    var name = "__DEFAULT__"
-
-    def receive = {
-      case Broadcast(msg) =>
-        socket.write(ByteString(msg))
-
-      case NewMessage(msg) =>
-        msg match {
-          case ext"name $myName" => 
-            name = myName
-            log.info(s"Name $name registered with the server.")
-            sender ! PlayerName(name)
-
-          case m if m.startsWith("bid") =>
-            val bids = readBids(name, m)
-            gameMaster ! (name, bids)
-
-          case m =>
-            socket.write(ByteString("Unknown message received."))
-            log.warning(s"Received unknown message from $name.")
-        }
-    }
-  }
 }
