@@ -6,7 +6,7 @@ import scala.collection.JavaConverters._
 
 import utils.InstanceConverter
 import control.InstanceHandlerImpl
-import data.{Bid, TransportationInstance, Edge, EdgeInfo, Node}
+import data.{Bid, TransportationInstance, Edge, Node}
 import GameMaster._
 import ImmutableBid._
 

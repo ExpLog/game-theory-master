@@ -1,10 +1,12 @@
+seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
+
 name := "game-theory-master"
 
-version := "0.1"
+version := "1.0"
 
 scalaVersion := "2.10.4"
 
-scalacOptions in (Compile,doc) := Seq("-groups", "-implicits", "-diagrams", "-feature")
+mainClass in Compile := Some("Main")
 
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
