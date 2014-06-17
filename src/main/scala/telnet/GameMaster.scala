@@ -6,7 +6,7 @@ import scala.collection.JavaConverters._
 
 import utils.InstanceConverter
 import control.InstanceHandlerImpl
-import data.{Bid, TransportationInstance}
+import data.{Bid, TransportationInstance, Edge, EdgeInfo, Node}
 import GameMaster._
 import ImmutableBid._
 
@@ -73,7 +73,12 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
 
   def playRound() {
     val javaBids: List[Bid] = bids.map(b => immutableBidToBid(b))
-    instHandler.solve(javaBids.asJava)
+    val results = instHandler.solve(javaBids.asJava).asScala
+
+    val csv: List[String] = results.map{case (e, eInfo) => eInfo.csv}.toList
+    val msg = s"result ${csv.length}\n" + csv.foldLeft("")(_+_)
+    log.info("Sending results to all players.")
+    sendToPlayers(msg)
   }
 
   def receive = {
@@ -107,7 +112,6 @@ object GameMaster {
     List(ne,1).max
   }
 
-  import data.{Node, Edge}
   val dummyListNode = List[Node]().asJava
   val dummyListEdge = List[Edge]().asJava
   val dummyTransportationInstance =

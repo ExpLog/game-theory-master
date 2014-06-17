@@ -41,7 +41,7 @@ public class EdgeInfo {
 		return owner + " #nBids = " + nBids + " #varCost = " + varCost + " #flow = " + flow; 
 	}
 	public String csv() {
-		return owner + ", " + nBids + ", " + varCost + ", " + flow;
+		return owner + "," + nBids + "," + varCost + "," + flow + "\n";
 	}
 	
 }
