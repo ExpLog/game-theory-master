@@ -26,7 +26,11 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     context.system.actorSelection("/user/" + serverName + "/*") ! Broadcast(msg)
   }
 
-  def closeAll() = context.system.actorSelection("user/" + serverName) ! "terminate"
+  def closeAll() = {
+    val results = instHandler.getPayoffMap.asScala
+    results.foreach(println)
+    context.system.actorSelection("user/" + serverName) ! "terminate"
+  }
 
   def resetBids()  {
     bids = Nil
