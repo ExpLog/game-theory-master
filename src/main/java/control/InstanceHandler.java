@@ -13,4 +13,5 @@ public interface InstanceHandler {
 	public void init(List<String> players, TransportationInstance instance);
 	public Map<Edge,EdgeInfo> solve(List<Bid> bids);
 	public Map<String, Double> getPayoffMap();
+    public TransportationInstance getInstance();
 }

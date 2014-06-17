@@ -45,7 +45,6 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	
 	private Map<Edge,EdgeInfo> computeResults(List<Bid> bids) {
 		Map<Edge, EdgeInfo> eInfo = new HashMap<Edge, EdgeInfo>();
-		
 		Collections.sort(bids);
 		for(Bid b : bids) {
 			Edge e = problem.getEdge(b.getSource(), b.getSink());
@@ -53,9 +52,11 @@ public class InstanceHandlerImpl implements InstanceHandler{
 				EdgeInfo inf = new EdgeInfo();
 				inf.setVarCost(b.getBid());
 				e.setVarCost(b.getBid());
+                e.setOwner(b.getOwner());
 				inf.setOwner(b.getOwner());
 				eInfo.put(e, inf);
 			}
+
 			EdgeInfo inf = eInfo.get(e);
 			inf.setNbids(inf.getNbids()+1);
 		}
@@ -67,9 +68,17 @@ public class InstanceHandlerImpl implements InstanceHandler{
 		
 		for(EdgeFlow flow : eFlows) {
 			Edge e = problem.getEdge(flow.getSource(), flow.getSink());
-			if(eInfo.containsKey(e)) {
-				eInfo.get(e).setFlow(flow.getFlow());
+			if(!eInfo.containsKey(e) && !edgeMap.get(e).isEmpty()) {
+
+                EdgeInfo info = new EdgeInfo();
+                info.setOwner(e.getOwner());
+                info.setNbids(edgeMap.get(e).size());
+                info.setVarCost(e.getVarCost());
+                eInfo.put(e, info);
 			}
+            if(eInfo.containsKey(e)) {
+                eInfo.get(e).setFlow(flow.getFlow());
+            }
 		}
 		
 		return eInfo;
@@ -81,8 +90,8 @@ public class InstanceHandlerImpl implements InstanceHandler{
 			String owner = info.getOwner();
 			double flow = info.getFlow();
 			double bid = info.getVarCost();
-			
 			double p = payoffMap.get(owner);
+
 			payoffMap.put(owner, p + flow*bid);
 		}
 	}
@@ -126,4 +135,8 @@ public class InstanceHandlerImpl implements InstanceHandler{
 		return payoffMap;
 	}
 
+    @Override
+    public TransportationInstance getInstance() {
+        return problem;
+    }
 }
