@@ -1,7 +1,6 @@
 package telnet
 
 import java.lang.Double
-import java.util
 
 import akka.actor.{ActorLogging, Actor}
 import java.io.File
@@ -12,8 +11,6 @@ import control.InstanceHandlerImpl
 import data._
 import GameMaster._
 import ImmutableBid._
-
-import scala.collection.mutable
 
 class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   private var nPlayers = 0
@@ -35,7 +32,8 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
 
   def closeAll() = {
     val finalResult = endMessage(totalPayoff.toMap)
-    println(finalResult)
+    log.info("Printing total payoffs for each player.")
+    print(finalResult)
     sendToPlayers(finalResult)
     context.system.actorSelection("user/" + serverName) ! "terminate"
   }
@@ -53,10 +51,6 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   def resetRound() { currentRound = 0 }
 
   def nextMatch()  {
-    if(!files.hasNext){
-      closeAll()
-    }
-
     if(currentRound == 0 && files.hasNext){
       val instance = InstanceConverter.convert(files.next().getAbsolutePath)
       instance.augment(20)
@@ -67,25 +61,23 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
 
       sendToPlayers(instanceMessage(currentInst.getName, nEdges))
       log.info(s"Initiating game instance ${currentInst.getName}.")
-    }
-
-    if(currentRound > 0 && currentRound < nRounds){
+    } else if(currentRound > 0 && currentRound < nRounds){
       sendToPlayers(instanceMessage(currentInst.getName, nEdges))
-    }
-
-    if(currentRound >= nRounds){
+    } else if(currentRound >= nRounds){
       val instancePayoff = instHandler.getPayoffMap.asScala
 
       for( (player, payoff) <- totalPayoff) {
-        val currentPayoff = totalPayoff(player)
-        totalPayoff += player -> {currentPayoff + instancePayoff(player)}
+        totalPayoff += player -> {payoff + instancePayoff(player)}
       }
       resetRound()
       nextMatch()
+    } else if(!files.hasNext){
+      closeAll()
     }
   }
 
   def playRound() {
+    currentRound = currentRound + 1
     val javaBids =
         BidFilter.filter(players.asJava, bids.map(immutableBidToBid).asJava, nEdges)
 
@@ -110,8 +102,8 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     case BidList(incBids) =>
       updateBids(incBids)
       if(receivedBids == nPlayers){
-        playRound()
         log.info(s"Playing round $currentRound of ${currentInst.getName}.")
+        playRound()
 
         resetBids()
         nextMatch()
@@ -127,10 +119,12 @@ object GameMaster {
   def instanceMessage(instName: String, edges: Int) = s"instance $instName $edges\n"
 
   def endMessage(totalPayoff: Map[String, Double]): String = {
-    val lines: List[String] = totalPayoff.map{
+    val payoffs: List[(String,Double)] =
+      totalPayoff.toList.sortBy{case (s,d) => -d}
+    val lines: List[String] = payoffs.map{
       case (player, payoff) => s"$player $payoff\n"
-    }.toList
-    "end\n"+lines.mkString
+    }
+    s"end ${totalPayoff.size}\n"+lines.mkString
   }
 
   def edgesPerRound(instance: TransportationInstance, nplayers: Int, rounds: Int): Int = {

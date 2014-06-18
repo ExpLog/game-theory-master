@@ -2,7 +2,7 @@ seq(com.github.retronym.SbtOneJar.oneJarSettings: _*)
 
 name := "game-theory-master"
 
-version := "1.0"
+version := "1.2"
 
 scalaVersion := "2.10.4"
 

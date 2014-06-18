@@ -23,13 +23,14 @@ class SubServer(socket: IO.SocketHandle,
           sender ! PlayerName(name)
           log.info(s"Name $name registered with the server.")
 
-        case m if m.startsWith("bid") =>
+        case m if m.startsWith("bid\n") =>
           val bids = readBids(name, m)
           gameMaster ! BidList(bids)
           log.info(s"Received bids from player $name.")
 
         case m =>
           socket.write(ByteString("Unknown message received."))
+          println(m)
           log.warning(s"Received unknown message from $name.")
       }
   }

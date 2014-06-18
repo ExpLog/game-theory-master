@@ -13,7 +13,7 @@ class TelnetServer(nPlayers: Int,
   import TelnetServer._
 
   val subServers = Map.empty[IO.Handle, ActorRef]
-  val serverSocket = IOManager(context.system).listen("localhost", 8080)
+  val serverSocket = IOManager(context.system).listen("0.0.0.0", 8080)
   var players: List[String] = Nil
 
   def receive = {
@@ -56,8 +56,6 @@ class TelnetServer(nPlayers: Int,
 }
 
 object TelnetServer {
-//  implicit val askTimeout = Timeout(5 seconds)
-
   def ascii(bytes: ByteString): String = {
     bytes.decodeString("UTF-8").trim
   }

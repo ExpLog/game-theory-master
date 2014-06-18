@@ -14,7 +14,6 @@ object BidReader {
    */
   def readBids(name: String, str: String): List[ImmutableBid] = {
     val lines: List[String] = str.split("\n").toList.drop(1)
-    println(lines)
     val bids: List[ImmutableBid] = lines.map{
       l => l match {
         case ext"$source $sink $priceBid" =>
