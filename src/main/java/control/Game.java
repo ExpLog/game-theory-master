@@ -45,7 +45,7 @@ public class Game {
 		return totalPayoff;
 	}
 	
-	private void augment(TransportationInstance ti, int k) {
+	public void augment(TransportationInstance ti, int k) {
 		for(Edge e : ti.getEdges()) {
 			e.setVarCost(e.getVarCost() * k);
 		}

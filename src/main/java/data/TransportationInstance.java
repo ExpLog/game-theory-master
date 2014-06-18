@@ -55,4 +55,9 @@ public class TransportationInstance {
 	public List<Edge> getEdgesTo(int sink) {
 		return edgesTo.get(sink);
 	}
+    public void augment(int k) {
+        for(Edge e : getEdges()) {
+            e.setVarCost(e.getVarCost() * k);
+        }
+    }
 }
