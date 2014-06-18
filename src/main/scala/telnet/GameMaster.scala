@@ -8,7 +8,7 @@ import java.io.File
 import scala.collection.JavaConverters._
 
 import utils.{BidFilter, InstanceConverter}
-import control.{InstanceHandlerImpl, GameMatch}
+import control.InstanceHandlerImpl
 import data._
 import GameMaster._
 import ImmutableBid._
