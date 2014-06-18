@@ -10,6 +10,8 @@ import data.{Bid, TransportationInstance, Edge, Node}
 import GameMaster._
 import ImmutableBid._
 
+import scala.collection.mutable
+
 class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   private var nPlayers = 0
   private var players: List[String] = Nil
@@ -76,11 +78,12 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   }
 
   def playRound() {
-    val javaBids: List[Bid] = bids.map(b => immutableBidToBid(b))
+    val javaBids: mutable.MutableList[Bid] =
+      mutable.MutableList(bids.map(b => immutableBidToBid(b)):_*)
     val results = instHandler.solve(javaBids.asJava).asScala
 
     val csv: List[String] = results.map{case (e, eInfo) => eInfo.csv}.toList
-    val msg = s"result ${csv.length}\n" + csv.foldLeft("")(_+_)
+    val msg = s"result ${csv.length}\n" + csv.mkString
     log.info("Sending results to all players.")
     sendToPlayers(msg)
   }
