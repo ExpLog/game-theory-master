@@ -34,8 +34,9 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   }
 
   def closeAll() = {
-    val results = instHandler.getPayoffMap.asScala
-    results.foreach(println)
+    val finalResult = endMessage(totalPayoff.toMap)
+    println(finalResult)
+    sendToPlayers(finalResult)
     context.system.actorSelection("user/" + serverName) ! "terminate"
   }
 
@@ -124,6 +125,13 @@ object GameMaster {
   case class BidList(bids: List[ImmutableBid])
 
   def instanceMessage(instName: String, edges: Int) = s"instance $instName $edges\n"
+
+  def endMessage(totalPayoff: Map[String, Double]): String = {
+    val lines: List[String] = totalPayoff.map{
+      case (player, payoff) => s"$player $payoff\n"
+    }.toList
+    "end\n"+lines.mkString
+  }
 
   def edgesPerRound(instance: TransportationInstance, nplayers: Int, rounds: Int): Int = {
     val ne = ((instance.getEdges.size * 0.4) / (nplayers * rounds)).asInstanceOf[Int]
