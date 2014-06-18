@@ -42,7 +42,7 @@ class TelnetServer(nPlayers: Int,
     case IO.Closed(socket, cause) =>
       context.stop(subServers(socket))
       subServers -= socket
-      log.info("A connection was closed.")
+      log.info("A connection was closed. " + cause)
 
     case "terminate" =>
       subServers.foreach{

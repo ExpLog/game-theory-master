@@ -1,6 +1,5 @@
 package telnet
 
-import java.lang.Double
 
 import akka.actor.{ActorLogging, Actor}
 import java.io.File
@@ -77,7 +76,6 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   }
 
   def playRound() {
-    currentRound = currentRound + 1
     val javaBids =
         BidFilter.filter(players.asJava, bids.map(immutableBidToBid).asJava, nEdges)
 
@@ -86,8 +84,10 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     val csv: List[String] =
       results.map{case (e, eInfo) => s"${e.getSourceId} ${e.getSinkId} " + eInfo.csv}.toList
     val msg = s"result ${csv.length}\n" + csv.mkString
-    log.info("Sending results to all players.")
     sendToPlayers(msg)
+
+    log.info(s"Sending results of round $currentRound of instance ${currentInst.getName} to all players.")
+    currentRound = currentRound + 1
   }
 
   def receive = {
