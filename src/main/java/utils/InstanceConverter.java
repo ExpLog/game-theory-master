@@ -35,7 +35,7 @@ public static TransportationInstance convert(String srcPath) throws Exception {
 		reader.readLine();//ARCS
 		
 		String line = reader.readLine();
-		StringBuilder edgesBuilder = new StringBuilder();
+		StringBuilder edgesBuilder = new StringBuilder(line + "\n");
 		while (!line.equals("S")) {
 			
 			line = reader.readLine();
@@ -53,9 +53,10 @@ public static TransportationInstance convert(String srcPath) throws Exception {
 			sc.nextLine();
 			edges.add(new Edge(source, sink, varCost, fixedCost));
 		}
+		sc.close();
 		// SOURCE NODES
 		line = reader.readLine();
-		StringBuilder sourceBuilder = new StringBuilder();
+		StringBuilder sourceBuilder = new StringBuilder(line + "\n");
 		while (!line.equals("D")) {
 			
 			line = reader.readLine();
@@ -71,9 +72,10 @@ public static TransportationInstance convert(String srcPath) throws Exception {
 			sources.add(new Node(source, resource));
 			sc.nextLine();
 		}
+		sc.close();
 		
 		line = reader.readLine();
-		StringBuilder sinkBuilder = new StringBuilder();
+		StringBuilder sinkBuilder = new StringBuilder(line + "\n");
 		while (reader.ready()) {
 			
 			line = reader.readLine();

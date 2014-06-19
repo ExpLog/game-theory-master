@@ -32,4 +32,9 @@ public class Bid implements Comparable<Bid>{
 	public int compareTo(Bid o) {
 		return (int)Math.signum(bid - o.bid);
 	}
+
+    @Override
+    public String toString() {
+        return owner+" "+source+" "+sink+" "+bid;
+    }
 }

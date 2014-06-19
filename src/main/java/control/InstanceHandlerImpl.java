@@ -98,7 +98,7 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	
 	private void subtractFixedCostPayoff(List<Bid> bids) {
 		Map<Edge, List<String>> newBidders = new HashMap<Edge,List<String>>();
-		
+
 		for(Bid b : bids) {
 			Edge e = problem.getEdge(b.getSource(),b.getSink());
 			if(!newBidders.containsKey(e)) {
@@ -106,7 +106,7 @@ public class InstanceHandlerImpl implements InstanceHandler{
 			}
 			newBidders.get(e).add(b.getOwner());
 		}
-		
+
 		for(Edge e: newBidders.keySet()) {
 			newBidders.get(e).removeAll(edgeMap.get(e));
 		}

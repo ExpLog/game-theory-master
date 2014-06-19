@@ -23,7 +23,7 @@ public class TransportationInstance {
 		edgesFrom = new HashMap<Integer,List<Edge>>();
 		edgesTo = new HashMap<Integer, List<Edge>>();
 		for(Edge e : edges) {
-			edgeMap.put(new EdgePair(e.getSourceId(), e.getSinkId()), e);
+            edgeMap.put(new EdgePair(e.getSourceId(), e.getSinkId()), e);
 			if(!edgesFrom.containsKey(e.getSourceId())) {
 				edgesFrom.put(e.getSourceId(), new ArrayList<Edge>());
 			}
@@ -47,7 +47,10 @@ public class TransportationInstance {
 		return edges;
 	}
 	public Edge getEdge(int source, int sink) {
-		return edgeMap.get(new EdgePair(source,sink));
+		if(!edgeMap.containsKey(new EdgePair(source,sink))){
+            System.out.println("The edge pair "+source+","+sink+" is not in the map of instance "+getName());
+        }
+        return edgeMap.get(new EdgePair(source,sink));
 	}
 	public List<Edge> getEdgesFrom(int source) {
 		return edgesFrom.get(source);

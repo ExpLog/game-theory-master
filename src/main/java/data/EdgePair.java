@@ -12,9 +12,10 @@ public class EdgePair {
 	public int getSinkId() {
 		return sinkId;
 	}
-	@Override
+
+    @Override
 	public int hashCode() {
-		return new Integer(sourceId).hashCode() + new Integer(sinkId).hashCode();
+		return new Integer(sourceId).hashCode() + new Integer(sinkId).hashCode()*13;
 	}
 	@Override
 	public boolean equals(Object o) {

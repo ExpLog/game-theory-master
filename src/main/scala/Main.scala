@@ -2,6 +2,7 @@ import java.io.File
 
 import akka.actor.{ActorSystem, Props}
 import telnet.{GameMaster, TelnetServer}
+import utils.InstanceConverter
 
 object Main extends App {
   def startServer(nPlayers: Int, nRounds: Int, dir: String) {
@@ -14,6 +15,13 @@ object Main extends App {
     val server = system.actorOf(
       Props(
         new TelnetServer(nPlayers,gm, serverName)), serverName)
+
+//    for(f <- files.listFiles()){
+//      val inst = InstanceConverter.convert(f.getAbsolutePath)
+//      if(inst.getSources.size + inst.getSinks.size >= 89){
+//        println(inst.getName +" "+inst.getEdge(1,89))
+//      }
+//    }
   }
 
   args.toList match{
