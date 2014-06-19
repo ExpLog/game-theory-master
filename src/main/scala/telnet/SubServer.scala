@@ -7,7 +7,6 @@ import reader.StringExtractor._
 import telnet.GameMaster.{BidList, Broadcast}
 import telnet.TelnetServer.{PlayerName, NewMessage}
 
-
 class SubServer(socket: IO.SocketHandle,
                 gameMaster: ActorRef) extends Actor with ActorLogging {
   var name = "__DEFAULT__"
