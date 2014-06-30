@@ -85,8 +85,9 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     val results = instHandler.solve(javaBids).asScala
 
     val csv: List[String] =
-      results.map{case (e, eInfo) => s"${e.getSourceId} ${e.getSinkId} " + eInfo.csv}.toList
-    val msg = s"result ${csv.length}\n" + csv.mkString
+      results.map{case (e, eInfo) => s"${e.getSourceId} ${e.getSinkId}"+ " " + eInfo.csv}.toList
+    val msg = s"result ${csv.length}\n" + csv.mkString("")
+    println(msg)
     sendToPlayers(msg)
 
     log.info(s"Sending results of round $currentRound of instance ${currentInst.getName} to all players.")
