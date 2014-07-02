@@ -68,9 +68,13 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     } else if(currentRound >= nRounds){
       val instancePayoff = instHandler.getPayoffMap.asScala
 
+      println("previous round payoff")
+      println(totalPayoff)
       for( (player, payoff) <- totalPayoff) {
         totalPayoff += player -> {payoff + instancePayoff(player)}
       }
+      println("this round payoff")
+      println(totalPayoff)
       log.info(s"Ending game instance ${currentInst.getName}")
       resetRound()
       nextMatch()
@@ -83,20 +87,10 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
     val javaBids =
         BidFilter.filter(players.asJava, bids.map(immutableBidToBid).asJava, nEdges)
     log.info(s"Received a total of ${javaBids.size} valid bids.")
-    val results = instHandler.solveTP(javaBids).asScala.toMap
-
-    val intermediary: Map[Edge, List[EdgeInfo]] = results.mapValues {
-      case eis => eis.asScala.toList
-    }
+    val results = instHandler.solve(javaBids).asScala.toMap
 
     val csv: List[String] =
-      intermediary.map{case (e, infos) => {
-        val listInfo: List[EdgeInfo] = infos
-        val lines = for(ei <- listInfo) yield {
-          s"${e.getSourceId} ${e.getSinkId}"+ " " + ei.csv
-        }
-        lines.toList.mkString
-      }}.toList
+      results.map{case (e, ei) => {s"${e.getSourceId} ${e.getSinkId}"+ " " + ei.csv}}.toList
     val bidMsg = csv.mkString("")
     val lines = bidMsg.split("\n").length
     val msg = s"result $lines\n" + bidMsg
@@ -146,7 +140,7 @@ object GameMaster {
   }
 
   def edgesPerRound(instance: TransportationInstance, nplayers: Int, rounds: Int): Int = {
-    val ne = ((instance.getEdges.size * 0.4) / (nplayers * rounds)).asInstanceOf[Int]
+    val ne = ((instance.getEdges.size * 0.2) / (nplayers * rounds)).asInstanceOf[Int]
     List(List(ne,1).max,500).min
   }
 

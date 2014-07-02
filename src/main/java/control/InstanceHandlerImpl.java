@@ -28,8 +28,6 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	private Map<Edge, List<String>> edgeOwners;
 	//instancia do problema
 	private TransportationInstance problem;
-    //cij originais
-    private Map<EdgePair, Edge> originalCij;
 
 	@Override
 	public Map<String, Double> getPayoffMap() {
@@ -45,13 +43,6 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	public void init(List<String> players, TransportationInstance instance) {
 
 		problem = instance;
-        originalCij = new HashMap<EdgePair,Edge>();
-
-        for(Edge e : problem.getEdges()) {
-            EdgePair ep = new EdgePair(e.getSourceId(), e.getSinkId());
-            originalCij.put(ep, new Edge(e));
-        }
-
 
 		edgeOwners = new HashMap<Edge, List<String>> ();
 		payoffMap = new HashMap<String, Double>();
@@ -80,19 +71,20 @@ public class InstanceHandlerImpl implements InstanceHandler{
 		//apaga os vencedores da arestas do round anterior
 		//uma vez que serao considerados novamente nesse round
 		edgeWinners.clear();
-		
+		List<Bid> winners = new ArrayList<Bid>();
 		//pega um bid por aresta e computa informacao do vencedor
 		for(Bid b : bids) {
 			Edge e = problem.getEdge(b.getSource(), b.getSink());
 			//se nao viu essa aresta ainda, aposta atual e menor, entao associa a aresta
 			if(!eInfo.containsKey(e)) {
+                winners.add(b);
 				//se nao tem jogadores que ganharam essa aresta cria uma lista
-				if(!edgeWinners.containsKey(e)) {
-					edgeWinners.put(e, new ArrayList<String>());
-				}
+//				if(!edgeWinners.containsKey(e)) {
+//					edgeWinners.put(e, new ArrayList<String>());
+//				}
 				e.setVarCost(b.getBid());
 				//adiciona esse apostador a lista de vencedores desta aresta
-				edgeWinners.get(e).add(b.getOwner());
+//				edgeWinners.get(e).add(b.getOwner());
 				//adiciona esse valor de aposta como vencedora para essa lista
 				edgeBids.put(e, b.getBid());
 			}
@@ -104,15 +96,15 @@ public class InstanceHandlerImpl implements InstanceHandler{
 		}
 		
 		//checa por empates
-		for(Bid b : bids) {
-			Edge e = problem.getEdge(b.getSource(), b.getSink());
-			//se alguem empatou o bid minimo em alguma aresta
-			if(Math.abs(edgeBids.get(e) - b.getBid()) < Double.MIN_VALUE
-					&& !edgeWinners.get(e).contains(b.getOwner())) {
-				//adiciona essa pessoa na lista de vencedores
-				edgeWinners.get(e).add(b.getOwner());
-			}
-		}
+//		for(Bid b : bids) {
+//			Edge e = problem.getEdge(b.getSource(), b.getSink());
+//			//se alguem empatou o bid minimo em alguma aresta
+//			if(Math.abs(edgeBids.get(e) - b.getBid()) < Double.MIN_VALUE
+//					&& !edgeWinners.get(e).contains(b.getOwner())) {
+//				//adiciona essa pessoa na lista de vencedores
+//				edgeWinners.get(e).add(b.getOwner());
+//			}
+//		}
 		
 
 		//resolve transportation problem
@@ -122,19 +114,30 @@ public class InstanceHandlerImpl implements InstanceHandler{
 
 		//adiciona a informacao de fluxo nas arestas
 		for(EdgeFlow flow : eFlows) {
-			Edge e = problem.getEdge(flow.getSource(), flow.getSink());
-            if(edgeWinners.containsKey(e)) {
-            	eInfo.put(e, new ArrayList<EdgeInfo>());
-            	double F = flow.getFlow()/(double)edgeWinners.get(e).size();
-            	for(String winner : edgeWinners.get(e)) {
-            		EdgeInfo info = new EdgeInfo();
-            		info.setFlow(F);
-            		info.setNbids(edgeBidCounter.get(e));
-            		info.setOwner(winner);
-            		info.setVarCost(e.getVarCost());
-            		eInfo.get(e).add(info);
-            	}
+            Edge e = problem.getEdge(flow.getSource(), flow.getSink());
+            if(eInfo.containsKey(e)) {
+                for (Bid b : winners) {
+                    if (b.getSource() == e.getSourceId() && b.getSink() == e.getSinkId()) {
+                        EdgeInfo info = new EdgeInfo();
+                        info.setFlow(flow.getFlow());
+                        info.setNbids(edgeBidCounter.get(e));
+                        info.setOwner(b.getOwner());
+                        info.setVarCost(e.getVarCost());
+                        eInfo.get(e).add(info);
+                    }
+                }
             }
+
+//            if(edgeWinners.containsKey(e)) {
+//            	eInfo.put(e, new ArrayList<EdgeInfo>());
+//            	double F = flow.getFlow();
+//            		EdgeInfo info = new EdgeInfo();
+//            		info.setFlow(F);
+//            		info.setNbids(edgeBidCounter.get(e));
+//            		info.setOwner(winner);
+//            		info.setVarCost(e.getVarCost());
+//                eInfo.get(e).add(info);
+//            }
 		}
 
 		return eInfo;
@@ -149,11 +152,7 @@ public class InstanceHandlerImpl implements InstanceHandler{
 			for(EdgeInfo i : info) {
 				double bid = i.getVarCost();
 				double p = payoffMap.get(i.getOwner());
-                double c = originalCij.get(new EdgePair(e.getSourceId(), e.getSinkId())).getVarCost();
-                //maybe subtract the unitary cost per flow here
-//                System.out.println(bid);
-//                System.out.println(c);
-				payoffMap.put(i.getOwner(), p + i.getFlow()*(bid-c));
+				payoffMap.put(i.getOwner(), p + i.getFlow()*bid);
 			}
 		}
 	}
@@ -288,15 +287,15 @@ public class InstanceHandlerImpl implements InstanceHandler{
 		}
 		
 		//checa por empates
-		for(Bid b : bids) {
-			Edge e = problem.getEdge(b.getSource(), b.getSink());
-			//se alguem empatou o bid minimo em alguma aresta
-			if(Math.abs(edgeBids.get(e) - b.getBid()) < Double.MIN_VALUE
-					&& !edgeWinners.get(e).contains(b.getOwner())) {
-				//adiciona essa pessoa na lista de vencedores
-				edgeWinners.get(e).add(b.getOwner());
-			}
-		}
+//		for(Bid b : bids) {
+//			Edge e = problem.getEdge(b.getSource(), b.getSink());
+//			//se alguem empatou o bid minimo em alguma aresta
+//			if(Math.abs(edgeBids.get(e) - b.getBid()) < Double.MIN_VALUE
+//					&& !edgeWinners.get(e).contains(b.getOwner())) {
+//				//adiciona essa pessoa na lista de vencedores
+//				edgeWinners.get(e).add(b.getOwner());
+//			}
+//		}
 		
 
 		//resolve transportation problem
@@ -327,7 +326,6 @@ public class InstanceHandlerImpl implements InstanceHandler{
 			for(String owner : owners) {
 				double bid = info.getVarCost();
 				double p = payoffMap.get(owner);
-                //maybe subtract the unitary cost per flow here
 				payoffMap.put(owner, p + flow*bid);
 			}
 		}
