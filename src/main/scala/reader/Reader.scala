@@ -3,6 +3,7 @@ package reader
 import scala.io.Source.fromFile
 import java.io.File
 import StringExtractor.StringExtractorContext
+import scala.language.implicitConversions
 
 class Reader(file: File) {
   val linesBuffer = fromFile(file).getLines()
