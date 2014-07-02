@@ -102,9 +102,7 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
 
     sendToPlayers(msg)
 
-
-
-    log.info(s"Sending ${lines} results of round $currentRound of instance ${currentInst.getName} to all players.")
+    log.info(s"Sending $lines results of round $currentRound of instance ${currentInst.getName} to all players.")
     currentRound = currentRound + 1
   }
 

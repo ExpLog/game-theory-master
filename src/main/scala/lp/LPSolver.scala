@@ -87,4 +87,5 @@ class LPSolver(transport: TransportationInstance) {
 
 object LPSolver {
   val env = new GRBEnv("game.log")
+  env.set(GRB.IntParam.LogToConsole, 0)
 }
