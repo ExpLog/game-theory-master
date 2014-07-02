@@ -52,8 +52,9 @@ class GameMaster(dir: File, nRounds: Int) extends Actor with ActorLogging {
   def nextMatch()  {
     if(currentRound == 0 && files.hasNext){
       val instance = InstanceConverter.convert(files.next().getAbsolutePath)
-      instance.augment(20)
+
       instHandler.init(players.asJava, instance)
+      instHandler.getInstance.augment(20)
 
       currentInst = instHandler.getInstance()
       nEdges = edgesPerRound(instHandler.getInstance, nPlayers, nRounds)
@@ -133,7 +134,7 @@ object GameMaster {
   case class Broadcast(msg: String)
   case class BidList(bids: List[ImmutableBid])
 
-  def instanceMessage(instName: String, edges: Int) = s"instance $instName $edges\n"
+  def instanceMessage(instName: String, edges: Int) = s"instance ${instName.toUpperCase} $edges\n"
 
   def endMessage(totalPayoff: Map[String, Double]): String = {
     val payoffs: List[(String,Double)] =

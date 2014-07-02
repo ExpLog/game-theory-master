@@ -28,6 +28,8 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	private Map<Edge, List<String>> edgeOwners;
 	//instancia do problema
 	private TransportationInstance problem;
+    //cij originais
+    private Map<EdgePair, Edge> originalCij;
 
 	@Override
 	public Map<String, Double> getPayoffMap() {
@@ -43,6 +45,13 @@ public class InstanceHandlerImpl implements InstanceHandler{
 	public void init(List<String> players, TransportationInstance instance) {
 
 		problem = instance;
+        originalCij = new HashMap<EdgePair,Edge>();
+
+        for(Edge e : problem.getEdges()) {
+            EdgePair ep = new EdgePair(e.getSourceId(), e.getSinkId());
+            originalCij.put(ep, new Edge(e));
+        }
+
 
 		edgeOwners = new HashMap<Edge, List<String>> ();
 		payoffMap = new HashMap<String, Double>();
@@ -140,7 +149,11 @@ public class InstanceHandlerImpl implements InstanceHandler{
 			for(EdgeInfo i : info) {
 				double bid = i.getVarCost();
 				double p = payoffMap.get(i.getOwner());
-				payoffMap.put(i.getOwner(), p + i.getFlow()*bid);
+                double c = originalCij.get(new EdgePair(e.getSourceId(), e.getSinkId())).getVarCost();
+                //maybe subtract the unitary cost per flow here
+//                System.out.println(bid);
+//                System.out.println(c);
+				payoffMap.put(i.getOwner(), p + i.getFlow()*(bid-c));
 			}
 		}
 	}

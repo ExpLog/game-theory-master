@@ -23,6 +23,14 @@ public class Edge {
         this.fixedCost = fixedCost;
     }
 
+    public Edge(Edge e) {
+        this.sourceId = e.sourceId;
+        this.sinkId = e.sinkId;
+        this.varCost = e.varCost;
+        this.fixedCost = e.fixedCost;
+        this.owner = e.owner;
+    }
+
     public void setOwner(String owner) {
         this.owner = owner;
     }

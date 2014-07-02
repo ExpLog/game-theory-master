@@ -37,6 +37,7 @@ public class TransportationInstance {
 	public String getName() {
 		return name;
 	}
+    public Map<EdgePair, Edge> getEdgesMap(){ return edgeMap; }
 	public List<Node> getSources() {
 		return sources;
 	}
